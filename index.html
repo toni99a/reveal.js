@@ -19,8 +19,9 @@
 	<body>
 		<div class="reveal">
 			<div class="slides">
-				<section>Slide 1</section>
-				<section>Slide 2</section>
+				<section>Night <span id="night">1</span></section>
+				<section>Day <span id="day">1</span></section>
+				<section>Nomination</section>
 			</div>
 		</div>
 
@@ -29,15 +30,38 @@
 		<script src="dist/plugin/markdown.js"></script>
 		<script src="dist/plugin/highlight.js"></script>
 		<script>
-			// More info about initialization & config:
-			// - https://revealjs.com/initialization/
-			// - https://revealjs.com/config/
+
+
 			Reveal.initialize({
 				hash: true,
+				controls: true,
+				keyboardCondition: 'focused',
 
-				// Learn about plugins: https://revealjs.com/plugins/
 				plugins: [RevealMarkdown, RevealHighlight, RevealNotes],
 			});
+
+			window.addEventListener("message", event => {
+				if(event.data.namespace !== "botc-control") return;
+
+				if(event.data.type === "nextRound"){
+					document.getElementById("night").innerText = 10;
+					Reveal.right();
+				}
+
+				if(event.data.type === "startGame"){
+					StartGame(event.data.data);
+				}
+			})
+
+			let playerCount = 0;
+
+			function StartGame(names){
+				var namesList = names.split(",");
+				namesList.forEach(element => {
+					playerCount++;
+				});
+				document.getElementById("night").innerText = playerCount;
+			}
 		</script>
 	</body>
 </html>

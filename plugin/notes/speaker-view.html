@@ -5,7 +5,7 @@
 	<head>
 		<meta charset="utf-8">
 
-		<title>reveal.js - Speaker View</title>
+		<title>reveal.js - Spitter View</title>
 
 		<style>
 			body {
@@ -312,7 +312,7 @@
 		<div id="upcoming-slide"><span class="overlay-element label">Upcoming</span></div>
 		<div id="speaker-controls">
 			<div class="speaker-controls-time">
-				<h4 class="label">Time <span class="reset-button">Click to Reset</span></h4>
+				<h4 class="label">Time <span class="reset-button">Click to Rasat</span></h4>
 				<div class="clock">
 					<span class="clock-value">0:00 AM</span>
 				</div>
@@ -324,6 +324,17 @@
 				<h4 class="label pacing-title" style="display: none">Pacing – Time to finish current slide</h4>
 				<div class="pacing" style="display: none">
 					<span class="hours-value">00</span><span class="minutes-value">:00</span><span class="seconds-value">:00</span>
+				</div>		
+				<div id="botc-controls">
+					<h3>Game Controls</h3>
+					<button onclick="nextRound()">Next Round</button>
+					<input id="killName" placeholder="Player name">
+					<button onclick="killPlayer()">Kill Player</button>
+					<button onclick="startGame()">Start Game</button>
+					<input id="Participants" placeholder="Name,Name,Name">
+					<select id="arr">
+        				<option>Need to Initialize Players!</option>
+    				</select>
 				</div>
 			</div>
 
@@ -717,11 +728,6 @@
 
 					}
 
-					timeEl.addEventListener( 'click', function() {
-						_resetTimer();
-						return false;
-					} );
-
 					function _displayTime( hrEl, minEl, secEl, time) {
 
 						var sign = Math.sign(time) == -1 ? "-" : "";
@@ -905,6 +911,55 @@
 				}
 
 			})();
+
+			let alivePlayers = [];
+			let deadPlayers = [];
+
+			function sendCommand(type, data){
+				window.opener.postMessage({
+					namespace: "botc-control",
+					type: type,
+					data: data
+				}, "*");
+			}
+
+			function nextRound(){
+				sendCommand("nextRound");
+			}
+
+			function killPlayer() {
+				const name = document.getElementById("killName").value;
+				sendCommand("killPlayer", name);
+			}
+
+			function startGame(){
+				var names = document.getElementById("Participants").value;
+				var namesList = names.split(",");
+				alivePlayers = namesList;
+				InitializePlayers();
+				console.log(alivePlayers)
+
+				sendCommand("startGame", names);
+			}
+
+			let res = document.getElementById('GFG');
+        	let select = document.getElementById("arr");
+
+        	// Main function
+        	function InitializePlayers() {
+				while (select.hasChildNodes()) {
+  					select.removeChild(select.firstChild);
+				}
+				
+            	for (let i = 0; i < alivePlayers.length; i++) {
+                	let optn = alivePlayers[i];
+                	let el = document.createElement("option");
+            	    el.textContent = optn;
+                	el.value = optn;
+                	select.appendChild(el);
+            	}
+            	res.innerHTML = "Elements Added";
+        	}
 
 		</script>
 	</body>
