@@ -1,4 +1,6 @@
 import { Config, TransitionStyle as _TransitionStyle, TransitionSpeed as _TransitionSpeed, FragmentAnimation as _FragmentAnimation } from './config';
+
+
 export as namespace Reveal;
 
 export default Reveal;

@@ -19,9 +19,38 @@
 	<body>
 		<div class="reveal">
 			<div class="slides">
-				<section>Night <span id="night">1</span></section>
-				<section>Day <span id="day">1</span></section>
-				<section>Nomination</section>
+				<section>Welcome Screen</section>
+				<section>
+					<h2>Night <span id="night number">1</span></section></h2>
+				<section>
+					<h2>Dawn <span id="dawn number">1</span></h2>
+				</section>
+				<section>
+					<h2>Day <span id="day number">1</span></h2>
+					<h3>Role Distribution</h3>
+					<ul>
+						<li id="Townsfolk">Townsfolk: ?</li>
+						<li id="Outsiders">Outsiders: ?</li>
+						<li id="Minions">Minions: ?</li>
+						<li id="Demons">Demons: 1</li>
+					</ul>
+				</section>
+				<section>
+					<section>
+						<h2>Evening <span id="evening number">1</span></h2>
+						<span id="abouttodie">Nobody</span> is about to die!
+					</section>
+					<section>
+						<h2>Nomination!</h2>
+						<span id="nominator">A</span> nominates <span id="nominee">B</span>!
+						<br>
+						<span id="needed to tie"></span> <span id="needed to die"></span>
+						<br>
+						<span id="countdown"></span>
+					</section>
+				</section>
+				<section>
+					<h2>Dusk <span id="dusk number">1</span></section></h2>
 			</div>
 		</div>
 
@@ -34,8 +63,40 @@
 
 			Reveal.initialize({
 				hash: true,
-				controls: true,
+				controls: false,
 				keyboardCondition: 'focused',
+				keyboard: {
+					32: null,
+					37: null,
+					38: null,
+					39: null,
+					40: null,
+					65: null,
+					66: null,
+					67: null,
+					68: null,
+					69: null,
+					70: null,
+					71: null,
+					72: null,
+					73: null,
+					74: null,
+					75: null,
+					76: null,
+					77: null,
+					78: null,
+					79: null,
+					80: null,
+					81: null,
+					82: null,
+					84: null,
+					85: null,
+					86: null,
+					87: null,
+					88: null,
+					89: null,
+					90: null
+				},
 
 				plugins: [RevealMarkdown, RevealHighlight, RevealNotes],
 			});
@@ -43,24 +104,160 @@
 			window.addEventListener("message", event => {
 				if(event.data.namespace !== "botc-control") return;
 
-				if(event.data.type === "nextRound"){
-					document.getElementById("night").innerText = 10;
-					Reveal.right();
-				}
+				switch (event.data.type) {
+					case "nextPhase":
+						nextPhase();
+						break;
+					case "previousPhase":
+						previousPhase();
+						break;
+					case "startGame":
+						StartGame(event.data.data);
+						break;
+					case "showNomination":
+						showNomination(event.data.data);
+						break;
+					case "startCountdown":
+						countdown(6);
+						break;
+					case "voteResult":
+						voteResult(event.data.data);
+						break;
 
-				if(event.data.type === "startGame"){
-					StartGame(event.data.data);
 				}
 			})
 
 			let playerCount = 0;
+			let alivePlayers = [];
+			let deadPlayers = [];
+			const roleDistributionTable = {
+				5: {"Townsfolk": 3,
+						"Outsiders": 0,
+						"Minions": 1},
+				6: {"Townsfolk": 3,
+					"Outsiders": 1,
+					"Minions": 1},
+				7: {"Townsfolk": 5,
+					"Outsiders": 0,
+					"Minions": 1},
+				8: {"Townsfolk": 5,
+					"Outsiders": 1,
+					"Minions": 1},
+				9: {"Townsfolk": 5,
+					"Outsiders": 2,
+					"Minions": 1},
+				10: {"Townsfolk": 7,
+					"Outsiders": 0,
+					"Minions": 2},
+				11: {"Townsfolk": 7,
+					"Outsiders": 1,
+					"Minions": 2},
+				12: {"Townsfolk": 7,
+					"Outsiders": 2,
+					"Minions": 2},
+				13: {"Townsfolk": 9,
+					"Outsiders": 0,
+					"Minions": 3},
+				14: {"Townsfolk": 9,
+					"Outsiders": 1,
+					"Minions": 3},
+				15: {"Townsfolk": 9,
+					"Outsiders": 2,
+					"Minions": 3}
+			};
+
+			let currentPhase = -1;
+			let round = 0;
+
+			let aboutToDie = "Nobody";
+			let currentHighestVote = -1;
+			let neededToDie = 0;
 
 			function StartGame(names){
-				var namesList = names.split(",");
-				namesList.forEach(element => {
+				let namesList = names.split(',');
+				namesList.forEach(name => {
+					alivePlayers[playerCount] = name;
 					playerCount++;
 				});
-				document.getElementById("night").innerText = playerCount;
+
+				let roleDistribution = roleDistributionTable[playerCount];
+				document.getElementById("Townsfolk").innerText = "Townsfolk: " + roleDistribution.Townsfolk;
+				document.getElementById("Outsiders").innerText = "Outsiders: " + roleDistribution.Outsiders;
+				document.getElementById("Minions").innerText = "Minions: " + roleDistribution.Minions;
+			}
+
+			function nextPhase(){
+				currentPhase = (currentPhase + 1) % 5;
+				toCurrentPhaseSlide();
+				if(currentPhase === 0) UpdateRoundNumber(1);
+			}
+
+			function previousPhase(){
+				if(currentPhase === 0){
+					currentPhase = 4;
+					UpdateRoundNumber(-1)
+				} else currentPhase--;
+
+				toCurrentPhaseSlide();
+			}
+
+			function toCurrentPhaseSlide(){
+				Reveal.slide(currentPhase+1,0,0);
+			}
+
+			function UpdateRoundNumber(addend){
+				round = (round + addend) % 5;
+				document.getElementById("night number").innerText = round;
+				document.getElementById("dawn number").innerText = round;
+				document.getElementById("day number").innerText = round;
+				document.getElementById("evening number").innerText = round;
+				document.getElementById("dusk number").innerText = round;
+				Reveal.sync();
+			}
+
+			function showNomination(names){
+				if(currentPhase !== 3) return;
+
+				let namesList = names.split(',');
+				document.getElementById("nominator").innerText = namesList[0];
+				document.getElementById("nominee").innerText = namesList[1];
+
+				neededToDie = (alivePlayers.length + (alivePlayers.length % 2)) / 2;
+				if(currentHighestVote !== -1){
+					neededToDie = Number(currentHighestVote) + 1;
+					document.getElementById("needed to tie").innerText = currentHighestVote + " votes needed to tie, ";
+				} else {
+					document.getElementById("needed to tie").innerText = "";
+				}
+
+				document.getElementById("needed to die").innerText = neededToDie + " votes needed to die.";
+				document.getElementById("countdown").innerText = "";
+				Reveal.down();
+			}
+
+			function countdown(duration){
+				const startTime = Date.now();
+				const targetTime = startTime + (duration * 1000);
+				let interval = setInterval(function(){
+						let elapsedTime = targetTime - Date.now();
+						if(elapsedTime > 0){
+							document.getElementById("countdown").innerText = "Vote in " + (elapsedTime / 1000).toFixed(0);
+						} else {
+							clearInterval(interval);
+							document.getElementById("countdown").innerText = "Vote!";
+						}
+				}, 1000);
+			}
+
+			function voteResult(nVotes){
+				if(nVotes === currentHighestVote){
+					document.getElementById("abouttodie").innerText = "Nobody";
+					currentHighestVote = nVotes;
+				} else if(nVotes >= neededToDie){
+					document.getElementById("abouttodie").innerText = document.getElementById("nominee").innerText;
+					currentHighestVote = nVotes;
+				}
+				Reveal.up();
 			}
 		</script>
 	</body>
