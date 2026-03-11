@@ -2,1011 +2,1026 @@ const bt = `<!--\r
 	NOTE: You need to build the notes plugin after making changes to this file.\r
 -->\r
 <html lang="en">\r
-	<head>\r
-		<meta charset="utf-8">\r
-\r
-		<title>reveal.js - Spitter View</title>\r
-\r
-		<style>\r
-			body {\r
-				font-family: Helvetica;\r
-				font-size: 18px;\r
-			}\r
-\r
-			#current-slide,\r
-			#upcoming-slide,\r
-			#speaker-controls {\r
-				padding: 6px;\r
-				box-sizing: border-box;\r
-				-moz-box-sizing: border-box;\r
-			}\r
-\r
-			#current-slide iframe,\r
-			#upcoming-slide iframe {\r
-				width: 100%;\r
-				height: 100%;\r
-				border: 1px solid #ddd;\r
-			}\r
-\r
-			#current-slide .label,\r
-			#upcoming-slide .label {\r
-				position: absolute;\r
-				top: 10px;\r
-				left: 10px;\r
-				z-index: 2;\r
-			}\r
-\r
-			#connection-status {\r
-				position: absolute;\r
-				top: 0;\r
-				left: 0;\r
-				width: 100%;\r
-				height: 100%;\r
-				z-index: 20;\r
-				padding: 30% 20% 20% 20%;\r
-				font-size: 18px;\r
-				color: #222;\r
-				background: #fff;\r
-				text-align: center;\r
-				box-sizing: border-box;\r
-				line-height: 1.4;\r
-			}\r
-\r
-			.overlay-element {\r
-				height: 34px;\r
-				line-height: 34px;\r
-				padding: 0 10px;\r
-				text-shadow: none;\r
-				background: rgba( 220, 220, 220, 0.8 );\r
-				color: #222;\r
-				font-size: 14px;\r
-			}\r
-\r
-			.overlay-element.interactive:hover {\r
-				background: rgba( 220, 220, 220, 1 );\r
-			}\r
-\r
-			#current-slide {\r
-				position: absolute;\r
-				width: 60%;\r
-				height: 100%;\r
-				top: 0;\r
-				left: 0;\r
-				padding-right: 0;\r
-			}\r
-\r
-			#upcoming-slide {\r
-				position: absolute;\r
-				width: 40%;\r
-				height: 40%;\r
-				right: 0;\r
-				top: 0;\r
-			}\r
-\r
-			/* Speaker controls */\r
-			#speaker-controls {\r
-				position: absolute;\r
-				top: 40%;\r
-				right: 0;\r
-				width: 40%;\r
-				height: 60%;\r
-				overflow: auto;\r
-				font-size: 18px;\r
-			}\r
-\r
-				.speaker-controls-time.hidden,\r
-				.speaker-controls-notes.hidden {\r
-					display: none;\r
-				}\r
-\r
-				.speaker-controls-time .label,\r
-				.speaker-controls-pace .label,\r
-				.speaker-controls-notes .label {\r
-					text-transform: uppercase;\r
-					font-weight: normal;\r
-					font-size: 0.66em;\r
-					color: #666;\r
-					margin: 0;\r
-				}\r
-\r
-				.speaker-controls-time, .speaker-controls-pace {\r
-					border-bottom: 1px solid rgba( 200, 200, 200, 0.5 );\r
-					margin-bottom: 10px;\r
-					padding: 10px 16px;\r
-					padding-bottom: 20px;\r
-					cursor: pointer;\r
-				}\r
-\r
-				.speaker-controls-time .reset-button {\r
-					opacity: 0;\r
-					float: right;\r
-					color: #666;\r
-					text-decoration: none;\r
-				}\r
-				.speaker-controls-time:hover .reset-button {\r
-					opacity: 1;\r
-				}\r
-\r
-				.speaker-controls-time .timer,\r
-				.speaker-controls-time .clock {\r
-					width: 50%;\r
-				}\r
-\r
-				.speaker-controls-time .timer,\r
-				.speaker-controls-time .clock,\r
-				.speaker-controls-time .pacing .hours-value,\r
-				.speaker-controls-time .pacing .minutes-value,\r
-				.speaker-controls-time .pacing .seconds-value {\r
-					font-size: 1.9em;\r
-				}\r
-\r
-				.speaker-controls-time .timer {\r
-					float: left;\r
-				}\r
-\r
-				.speaker-controls-time .clock {\r
-					float: right;\r
-					text-align: right;\r
-				}\r
-\r
-				.speaker-controls-time span.mute {\r
-					opacity: 0.3;\r
-				}\r
-\r
-				.speaker-controls-time .pacing-title {\r
-					margin-top: 5px;\r
-				}\r
-\r
-				.speaker-controls-time .pacing.ahead {\r
-					color: blue;\r
-				}\r
-\r
-				.speaker-controls-time .pacing.on-track {\r
-					color: green;\r
-				}\r
-\r
-				.speaker-controls-time .pacing.behind {\r
-					color: red;\r
-				}\r
-\r
-				.speaker-controls-notes {\r
-					padding: 10px 16px;\r
-				}\r
-\r
-				.speaker-controls-notes .value {\r
-					margin-top: 5px;\r
-					line-height: 1.4;\r
-					font-size: 1.2em;\r
-				}\r
-\r
-			/* Layout selector */\r
-			#speaker-layout {\r
-				position: absolute;\r
-				top: 10px;\r
-				right: 10px;\r
-				color: #222;\r
-				z-index: 10;\r
-			}\r
-				#speaker-layout select {\r
-					position: absolute;\r
-					width: 100%;\r
-					height: 100%;\r
-					top: 0;\r
-					left: 0;\r
-					border: 0;\r
-					box-shadow: 0;\r
-					cursor: pointer;\r
-					opacity: 0;\r
-\r
-					font-size: 1em;\r
-					background-color: transparent;\r
-\r
-					-moz-appearance: none;\r
-					-webkit-appearance: none;\r
-					-webkit-tap-highlight-color: rgba(0, 0, 0, 0);\r
-				}\r
-\r
-				#speaker-layout select:focus {\r
-					outline: none;\r
-					box-shadow: none;\r
-				}\r
-\r
-			.clear {\r
-				clear: both;\r
-			}\r
-\r
-			/* Speaker layout: Wide */\r
-			body[data-speaker-layout="wide"] #current-slide,\r
-			body[data-speaker-layout="wide"] #upcoming-slide {\r
-				width: 50%;\r
-				height: 45%;\r
-				padding: 6px;\r
-			}\r
-\r
-			body[data-speaker-layout="wide"] #current-slide {\r
-				top: 0;\r
-				left: 0;\r
-			}\r
-\r
-			body[data-speaker-layout="wide"] #upcoming-slide {\r
-				top: 0;\r
-				left: 50%;\r
-			}\r
-\r
-			body[data-speaker-layout="wide"] #speaker-controls {\r
-				top: 45%;\r
-				left: 0;\r
-				width: 100%;\r
-				height: 50%;\r
-				font-size: 1.25em;\r
-			}\r
-\r
-			/* Speaker layout: Tall */\r
-			body[data-speaker-layout="tall"] #current-slide,\r
-			body[data-speaker-layout="tall"] #upcoming-slide {\r
-				width: 45%;\r
-				height: 50%;\r
-				padding: 6px;\r
-			}\r
-\r
-			body[data-speaker-layout="tall"] #current-slide {\r
-				top: 0;\r
-				left: 0;\r
-			}\r
-\r
-			body[data-speaker-layout="tall"] #upcoming-slide {\r
-				top: 50%;\r
-				left: 0;\r
-			}\r
-\r
-			body[data-speaker-layout="tall"] #speaker-controls {\r
-				padding-top: 40px;\r
-				top: 0;\r
-				left: 45%;\r
-				width: 55%;\r
-				height: 100%;\r
-				font-size: 1.25em;\r
-			}\r
-\r
-			/* Speaker layout: Notes only */\r
-			body[data-speaker-layout="notes-only"] #current-slide,\r
-			body[data-speaker-layout="notes-only"] #upcoming-slide {\r
-				display: none;\r
-			}\r
-\r
-			body[data-speaker-layout="notes-only"] #speaker-controls {\r
-				padding-top: 40px;\r
-				top: 0;\r
-				left: 0;\r
-				width: 100%;\r
-				height: 100%;\r
-				font-size: 1.25em;\r
-			}\r
-\r
-			@media screen and (max-width: 1080px) {\r
-				body[data-speaker-layout="default"] #speaker-controls {\r
-					font-size: 16px;\r
-				}\r
-			}\r
-\r
-			@media screen and (max-width: 900px) {\r
-				body[data-speaker-layout="default"] #speaker-controls {\r
-					font-size: 14px;\r
-				}\r
-			}\r
-\r
-			@media screen and (max-width: 800px) {\r
-				body[data-speaker-layout="default"] #speaker-controls {\r
-					font-size: 12px;\r
-				}\r
-			}\r
-\r
-		</style>\r
-	</head>\r
-\r
-	<body>\r
-\r
-		<div id="connection-status">Loading speaker view...</div>\r
-\r
-		<div id="current-slide"></div>\r
-		<div id="upcoming-slide"><span class="overlay-element label">Upcoming</span></div>\r
-		<div id="speaker-controls">\r
-			<div class="speaker-controls-time">\r
-				<h4 class="label">Time</h4>\r
-				<div class="clock">\r
-					<span class="clock-value">0:00 AM</span>\r
-				</div>\r
-				<div class="timer">\r
-					<span class="hours-value">00</span><span class="minutes-value">:00</span><span class="seconds-value">:00</span>\r
-				</div>\r
-				<div class="clear"></div>\r
-\r
-				<h4 class="label pacing-title" style="display: none">Pacing – Time to finish current slide</h4>\r
-				<div class="pacing" style="display: none">\r
-					<span class="hours-value">00</span><span class="minutes-value">:00</span><span class="seconds-value">:00</span>\r
-				</div>\r
-			</div>\r
-\r
-			<div id="botc-controls">\r
-					<div id="init">\r
-						<h3>Initialize Game</h3>\r
-						<button onclick="startGame()">Start Game</button>\r
-						<input id="Participants" placeholder="Name,Name,Name">\r
-					</div>\r
-					<h3>Phase Controls</h3>\r
-					<button onclick="previousPhase()">Previous Phase</button>\r
-					<button onclick="nextPhase()">Next Phase</button>\r
-					<h3>Nominations</h3>\r
-					<select id="nominator">\r
-						<option>Need to Initialize Players!</option>\r
-					</select>\r
-					<span>=> Nominates =></span>\r
-					<select id="nominee">\r
-						<option>Need to Initialize Players!</option>\r
-					</select>\r
-					<button onclick="showNomination()">Show Nomination</button>\r
-					<button onclick="startVote()">Start Vote</button>\r
-					<input id="vote result" placeholder="Number of Votes">\r
-					<button onclick="voteResult()">Send Result</button>\r
-					<select id="life token">\r
-						<option>Need to Initialize Players!</option>\r
-					</select>\r
-					<button onclick="killPlayer()">Kill Player</button>\r
-					<button onclick="revivePlayer()">Revive Player</button>\r
-			</div>\r
-		</div>\r
-		<div id="speaker-layout" class="overlay-element interactive">\r
-			<span class="speaker-layout-label"></span>\r
-			<select class="speaker-layout-dropdown"></select>\r
-		</div>\r
-\r
-		<script>\r
-\r
-			(function() {\r
-\r
-				var notes,\r
-					notesValue,\r
-					currentState,\r
-					currentSlide,\r
-					upcomingSlide,\r
-					layoutLabel,\r
-					layoutDropdown,\r
-					pendingCalls = {},\r
-					lastRevealApiCallId = 0,\r
-					connected = false\r
-\r
-				var connectionStatus = document.querySelector( '#connection-status' );\r
-\r
-				var SPEAKER_LAYOUTS = {\r
-					'default': 'Default',\r
-					'wide': 'Wide',\r
-					'tall': 'Tall',\r
-					'notes-only': 'Notes only'\r
-				};\r
-\r
-				setupLayout();\r
-\r
-				let openerOrigin;\r
-\r
-				try {\r
-					openerOrigin = window.opener.location.origin;\r
-				}\r
-				catch ( error ) { console.warn( error ) }\r
-\r
-				// In order to prevent XSS, the speaker view will only run if its\r
-				// opener has the same origin as itself\r
-				if( window.location.origin !== openerOrigin ) {\r
-					connectionStatus.innerHTML = 'Cross origin error.<br>The speaker window can only be opened from the same origin.';\r
-					return;\r
-				}\r
-\r
-				var connectionTimeout = setTimeout( function() {\r
-					connectionStatus.innerHTML = 'Error connecting to main window.<br>Please try closing and reopening the speaker view.';\r
-				}, 5000 );\r
-\r
-				window.addEventListener( 'message', function( event ) {\r
-\r
-					// Validate the origin of all messages to avoid parsing messages\r
-					// that aren't meant for us. Ignore when running off file:// so\r
-					// that the speaker view continues to work without a web server.\r
-					if( window.location.origin !== event.origin && window.location.origin !== 'file://' ) {\r
-						return\r
-					}\r
-\r
-					clearTimeout( connectionTimeout );\r
-					connectionStatus.style.display = 'none';\r
-\r
-					var data = JSON.parse( event.data );\r
-\r
-					// The overview mode is only useful to the reveal.js instance\r
-					// where navigation occurs so we don't sync it\r
-					if( data.state ) delete data.state.overview;\r
-\r
-					// Messages sent by the notes plugin inside of the main window\r
-					if( data && data.namespace === 'reveal-notes' ) {\r
-						if( data.type === 'connect' ) {\r
-							handleConnectMessage( data );\r
-						}\r
-						else if( data.type === 'state' ) {\r
-							handleStateMessage( data );\r
-						}\r
-						else if( data.type === 'return' ) {\r
-							pendingCalls[data.callId](data.result);\r
-							delete pendingCalls[data.callId];\r
-						}\r
-					}\r
-					// Messages sent by the reveal.js inside of the current slide preview\r
-					else if( data && data.namespace === 'reveal' ) {\r
-						const supportedEvents = [\r
-							'slidechanged',\r
-							'fragmentshown',\r
-							'fragmenthidden',\r
-							'paused',\r
-							'resumed',\r
-							'previewiframe',\r
-							'previewimage',\r
-							'previewvideo',\r
-							'closeoverlay'\r
-						];\r
-\r
-						if( /ready/.test( data.eventName ) ) {\r
-							// Send a message back to notify that the handshake is complete\r
-							window.opener.postMessage( JSON.stringify({ namespace: 'reveal-notes', type: 'connected'} ), '*' );\r
-						}\r
-						else if( supportedEvents.includes( data.eventName ) && currentState !== JSON.stringify( data.state ) ) {\r
-							dispatchStateToMainWindow( data.state );\r
-						}\r
-					}\r
-\r
-				} );\r
-\r
-				/**\r
-				 * Updates the presentation in the main window to match the state\r
-				 * of the presentation in the notes window.\r
-				 */\r
-				const dispatchStateToMainWindow = debounce(( state ) => {\r
-					window.opener.postMessage( JSON.stringify({ method: 'setState', args: [ state ]} ), '*' );\r
-				}, 500);\r
-\r
-				/**\r
-				 * Asynchronously calls the Reveal.js API of the main frame.\r
-				 */\r
-				function callRevealApi( methodName, methodArguments, callback ) {\r
-\r
-					var callId = ++lastRevealApiCallId;\r
-					pendingCalls[callId] = callback;\r
-					window.opener.postMessage( JSON.stringify( {\r
-						namespace: 'reveal-notes',\r
-						type: 'call',\r
-						callId: callId,\r
-						methodName: methodName,\r
-						arguments: methodArguments\r
-					} ), '*' );\r
-\r
-				}\r
-\r
-				/**\r
-				 * Called when the main window is trying to establish a\r
-				 * connection.\r
-				 */\r
-				function handleConnectMessage( data ) {\r
-\r
-					if( connected === false ) {\r
-						connected = true;\r
-\r
-						setupIframes( data );\r
-						setupKeyboard();\r
-						setupNotes();\r
-						setupTimer();\r
-						setupHeartbeat();\r
-					}\r
-\r
-				}\r
-\r
-				/**\r
-				 * Called when the main window sends an updated state.\r
-				 */\r
-				function handleStateMessage( data ) {\r
-\r
-					// Store the most recently set state to avoid circular loops\r
-					// applying the same state\r
-					currentState = JSON.stringify( data.state );\r
-\r
-					// No need for updating the notes in case of fragment changes\r
-					if ( data.notes ) {\r
-						notes.classList.remove( 'hidden' );\r
-						notesValue.style.whiteSpace = data.whitespace;\r
-						if( data.markdown ) {\r
-							notesValue.innerHTML = marked.parse( data.notes );\r
-						}\r
-						else {\r
-							notesValue.innerHTML = data.notes;\r
-						}\r
-					}\r
-					else {\r
-						notes.classList.add( 'hidden' );\r
-					}\r
-\r
-					// Don't show lightboxes in the upcoming slide\r
-					const { previewVideo, previewImage, previewIframe, ...upcomingState } = data.state;\r
-\r
-					// Update the note slides\r
-					currentSlide.contentWindow.postMessage( JSON.stringify({ method: 'setState', args: [ data.state ] }), '*' );\r
-					upcomingSlide.contentWindow.postMessage( JSON.stringify({ method: 'setState', args: [ upcomingState ] }), '*' );\r
-					upcomingSlide.contentWindow.postMessage( JSON.stringify({ method: 'next' }), '*' );\r
-\r
-				}\r
-\r
-				// Limit to max one state update per X ms\r
-				handleStateMessage = debounce( handleStateMessage, 200 );\r
-\r
-				/**\r
-				 * Forward keyboard events to the current slide window.\r
-				 * This enables keyboard events to work even if focus\r
-				 * isn't set on the current slide iframe.\r
-				 *\r
-				 * Block F5 default handling, it reloads and disconnects\r
-				 * the speaker notes window.\r
-				 */\r
-				function setupKeyboard() {\r
-\r
-					document.addEventListener( 'keydown', function( event ) {\r
-						if( event.keyCode === 116 || ( event.metaKey && event.keyCode === 82 ) ) {\r
-							event.preventDefault();\r
-							return false;\r
-						}\r
-						currentSlide.contentWindow.postMessage( JSON.stringify({ method: 'triggerKey', args: [ event.keyCode ] }), '*' );\r
-					} );\r
-\r
-				}\r
-\r
-				/**\r
-				 * Creates the preview iframes.\r
-				 */\r
-				function setupIframes( data ) {\r
-\r
-					var params = [\r
-						'receiver',\r
-						'progress=false',\r
-						'history=false',\r
-						'transition=none',\r
-						'autoSlide=0',\r
-						'backgroundTransition=none'\r
-					].join( '&' );\r
-\r
-					var urlSeparator = /\\?/.test(data.url) ? '&' : '?';\r
-					var hash = '#/' + data.state.indexh + '/' + data.state.indexv;\r
-					var currentURL = data.url + urlSeparator + params + '&scrollActivationWidth=false&postMessageEvents=true' + hash;\r
-					var upcomingURL = data.url + urlSeparator + params + '&scrollActivationWidth=false&controls=false' + hash;\r
-\r
-					currentSlide = document.createElement( 'iframe' );\r
-					currentSlide.setAttribute( 'width', 1280 );\r
-					currentSlide.setAttribute( 'height', 1024 );\r
-					currentSlide.setAttribute( 'src', currentURL );\r
-					document.querySelector( '#current-slide' ).appendChild( currentSlide );\r
-\r
-					upcomingSlide = document.createElement( 'iframe' );\r
-					upcomingSlide.setAttribute( 'width', 640 );\r
-					upcomingSlide.setAttribute( 'height', 512 );\r
-					upcomingSlide.setAttribute( 'src', upcomingURL );\r
-					document.querySelector( '#upcoming-slide' ).appendChild( upcomingSlide );\r
-\r
-				}\r
-\r
-				/**\r
-				 * Setup the notes UI.\r
-				 */\r
-				function setupNotes() {\r
-\r
-					notes = document.querySelector( '.speaker-controls-notes' );\r
-					notesValue = document.querySelector( '.speaker-controls-notes .value' );\r
-\r
-				}\r
-\r
-				/**\r
-				 * We send out a heartbeat at all times to ensure we can\r
-				 * reconnect with the main presentation window after reloads.\r
-				 */\r
-				function setupHeartbeat() {\r
-\r
-					setInterval( () => {\r
-						window.opener.postMessage( JSON.stringify({ namespace: 'reveal-notes', type: 'heartbeat'} ), '*' );\r
-					}, 1000 );\r
-\r
-				}\r
-\r
-				function getTimings( callback ) {\r
-\r
-					callRevealApi( 'getSlidesAttributes', [], function ( slideAttributes ) {\r
-						callRevealApi( 'getConfig', [], function ( config ) {\r
-							var totalTime = config.totalTime;\r
-							var minTimePerSlide = config.minimumTimePerSlide || 0;\r
-							var defaultTiming = config.defaultTiming;\r
-							if ((defaultTiming == null) && (totalTime == null)) {\r
-								callback(null);\r
-								return;\r
-							}\r
-							// Setting totalTime overrides defaultTiming\r
-							if (totalTime) {\r
-								defaultTiming = 0;\r
-							}\r
-							var timings = [];\r
-							for ( var i in slideAttributes ) {\r
-								var slide = slideAttributes[ i ];\r
-								var timing = defaultTiming;\r
-								if( slide.hasOwnProperty( 'data-timing' )) {\r
-									var t = slide[ 'data-timing' ];\r
-									timing = parseInt(t);\r
-									if( isNaN(timing) ) {\r
-										console.warn("Could not parse timing '" + t + "' of slide " + i + "; using default of " + defaultTiming);\r
-										timing = defaultTiming;\r
-									}\r
-								}\r
-								timings.push(timing);\r
-							}\r
-							if ( totalTime ) {\r
-								// After we've allocated time to individual slides, we summarize it and\r
-								// subtract it from the total time\r
-								var remainingTime = totalTime - timings.reduce( function(a, b) { return a + b; }, 0 );\r
-								// The remaining time is divided by the number of slides that have 0 seconds\r
-								// allocated at the moment, giving the average time-per-slide on the remaining slides\r
-								var remainingSlides = (timings.filter( function(x) { return x == 0 }) ).length\r
-								var timePerSlide = Math.round( remainingTime / remainingSlides, 0 )\r
-								// And now we replace every zero-value timing with that average\r
-								timings = timings.map( function(x) { return (x==0 ? timePerSlide : x) } );\r
-							}\r
-							var slidesUnderMinimum = timings.filter( function(x) { return (x < minTimePerSlide) } ).length\r
-							if ( slidesUnderMinimum ) {\r
-								message = "The pacing time for " + slidesUnderMinimum + " slide(s) is under the configured minimum of " + minTimePerSlide + " seconds. Check the data-timing attribute on individual slides, or consider increasing the totalTime or minimumTimePerSlide configuration options (or removing some slides).";\r
-								alert(message);\r
-							}\r
-							callback( timings );\r
-						} );\r
-					} );\r
-\r
-				}\r
-\r
-				/**\r
-				 * Return the number of seconds allocated for presenting\r
-				 * all slides up to and including this one.\r
-				 */\r
-				function getTimeAllocated( timings, callback ) {\r
-\r
-					callRevealApi( 'getSlidePastCount', [], function ( currentSlide ) {\r
-						var allocated = 0;\r
-						for (var i in timings.slice(0, currentSlide + 1)) {\r
-							allocated += timings[i];\r
-						}\r
-						callback( allocated );\r
-					} );\r
-\r
-				}\r
-\r
-				/**\r
-				 * Create the timer and clock and start updating them\r
-				 * at an interval.\r
-				 */\r
-				function setupTimer() {\r
-\r
-					var start = new Date(),\r
-					timeEl = document.querySelector( '.speaker-controls-time' ),\r
-					clockEl = timeEl.querySelector( '.clock-value' ),\r
-					hoursEl = timeEl.querySelector( '.hours-value' ),\r
-					minutesEl = timeEl.querySelector( '.minutes-value' ),\r
-					secondsEl = timeEl.querySelector( '.seconds-value' ),\r
-					pacingTitleEl = timeEl.querySelector( '.pacing-title' ),\r
-					pacingEl = timeEl.querySelector( '.pacing' ),\r
-					pacingHoursEl = pacingEl.querySelector( '.hours-value' ),\r
-					pacingMinutesEl = pacingEl.querySelector( '.minutes-value' ),\r
-					pacingSecondsEl = pacingEl.querySelector( '.seconds-value' );\r
-\r
-					var timings = null;\r
-					getTimings( function ( _timings ) {\r
-\r
-						timings = _timings;\r
-						if (_timings !== null) {\r
-							pacingTitleEl.style.removeProperty('display');\r
-							pacingEl.style.removeProperty('display');\r
-						}\r
-\r
-						// Update once directly\r
-						_updateTimer();\r
-\r
-						// Then update every second\r
-						setInterval( _updateTimer, 1000 );\r
-\r
-					} );\r
-\r
-\r
-					function _resetTimer() {\r
-\r
-						if (timings == null) {\r
-							start = new Date();\r
-							_updateTimer();\r
-						}\r
-						else {\r
-							// Reset timer to beginning of current slide\r
-							getTimeAllocated( timings, function ( slideEndTimingSeconds ) {\r
-								var slideEndTiming = slideEndTimingSeconds * 1000;\r
-								callRevealApi( 'getSlidePastCount', [], function ( currentSlide ) {\r
-									var currentSlideTiming = timings[currentSlide] * 1000;\r
-									var previousSlidesTiming = slideEndTiming - currentSlideTiming;\r
-									var now = new Date();\r
-									start = new Date(now.getTime() - previousSlidesTiming);\r
-									_updateTimer();\r
-								} );\r
-							} );\r
-						}\r
-\r
-					}\r
-\r
-					function _displayTime( hrEl, minEl, secEl, time) {\r
-\r
-						var sign = Math.sign(time) == -1 ? "-" : "";\r
-						time = Math.abs(Math.round(time / 1000));\r
-						var seconds = time % 60;\r
-						var minutes = Math.floor( time / 60 ) % 60 ;\r
-						var hours = Math.floor( time / ( 60 * 60 )) ;\r
-						hrEl.innerHTML = sign + zeroPadInteger( hours );\r
-						if (hours == 0) {\r
-							hrEl.classList.add( 'mute' );\r
-						}\r
-						else {\r
-							hrEl.classList.remove( 'mute' );\r
-						}\r
-						minEl.innerHTML = ':' + zeroPadInteger( minutes );\r
-						if (hours == 0 && minutes == 0) {\r
-							minEl.classList.add( 'mute' );\r
-						}\r
-						else {\r
-							minEl.classList.remove( 'mute' );\r
-						}\r
-						secEl.innerHTML = ':' + zeroPadInteger( seconds );\r
-					}\r
-\r
-					function _updateTimer() {\r
-\r
-						var diff, hours, minutes, seconds,\r
-						now = new Date();\r
-\r
-						diff = now.getTime() - start.getTime();\r
-\r
-						clockEl.innerHTML = now.toLocaleTimeString( 'en-US', { hour12: true, hour: '2-digit', minute:'2-digit' } );\r
-						_displayTime( hoursEl, minutesEl, secondsEl, diff );\r
-						if (timings !== null) {\r
-							_updatePacing(diff);\r
-						}\r
-\r
-					}\r
-\r
-					function _updatePacing(diff) {\r
-\r
-						getTimeAllocated( timings, function ( slideEndTimingSeconds ) {\r
-							var slideEndTiming = slideEndTimingSeconds * 1000;\r
-\r
-							callRevealApi( 'getSlidePastCount', [], function ( currentSlide ) {\r
-								var currentSlideTiming = timings[currentSlide] * 1000;\r
-								var timeLeftCurrentSlide = slideEndTiming - diff;\r
-								if (timeLeftCurrentSlide < 0) {\r
-									pacingEl.className = 'pacing behind';\r
-								}\r
-								else if (timeLeftCurrentSlide < currentSlideTiming) {\r
-									pacingEl.className = 'pacing on-track';\r
-								}\r
-								else {\r
-									pacingEl.className = 'pacing ahead';\r
-								}\r
-								_displayTime( pacingHoursEl, pacingMinutesEl, pacingSecondsEl, timeLeftCurrentSlide );\r
-							} );\r
-						} );\r
-					}\r
-\r
-				}\r
-\r
-				/**\r
-				 * Sets up the speaker view layout and layout selector.\r
-				 */\r
-				function setupLayout() {\r
-\r
-					layoutDropdown = document.querySelector( '.speaker-layout-dropdown' );\r
-					layoutLabel = document.querySelector( '.speaker-layout-label' );\r
-\r
-					// Render the list of available layouts\r
-					for( var id in SPEAKER_LAYOUTS ) {\r
-						var option = document.createElement( 'option' );\r
-						option.setAttribute( 'value', id );\r
-						option.textContent = SPEAKER_LAYOUTS[ id ];\r
-						layoutDropdown.appendChild( option );\r
-					}\r
-\r
-					// Monitor the dropdown for changes\r
-					layoutDropdown.addEventListener( 'change', function( event ) {\r
-\r
-						setLayout( layoutDropdown.value );\r
-\r
-					}, false );\r
-\r
-					// Restore any currently persisted layout\r
-					setLayout( getLayout() );\r
-\r
-				}\r
-\r
-				/**\r
-				 * Sets a new speaker view layout. The layout is persisted\r
-				 * in local storage.\r
-				 */\r
-				function setLayout( value ) {\r
-\r
-					var title = SPEAKER_LAYOUTS[ value ];\r
-\r
-					layoutLabel.innerHTML = 'Layout' + ( title ? ( ': ' + title ) : '' );\r
-					layoutDropdown.value = value;\r
-\r
-					document.body.setAttribute( 'data-speaker-layout', value );\r
-\r
-					// Persist locally\r
-					if( supportsLocalStorage() ) {\r
-						window.localStorage.setItem( 'reveal-speaker-layout', value );\r
-					}\r
-\r
-				}\r
-\r
-				/**\r
-				 * Returns the ID of the most recently set speaker layout\r
-				 * or our default layout if none has been set.\r
-				 */\r
-				function getLayout() {\r
-\r
-					if( supportsLocalStorage() ) {\r
-						var layout = window.localStorage.getItem( 'reveal-speaker-layout' );\r
-						if( layout ) {\r
-							return layout;\r
-						}\r
-					}\r
-\r
-					// Default to the first record in the layouts hash\r
-					for( var id in SPEAKER_LAYOUTS ) {\r
-						return id;\r
-					}\r
-\r
-				}\r
-\r
-				function supportsLocalStorage() {\r
-\r
-					try {\r
-						localStorage.setItem('test', 'test');\r
-						localStorage.removeItem('test');\r
-						return true;\r
-					}\r
-					catch( e ) {\r
-						return false;\r
-					}\r
-\r
-				}\r
-\r
-				function zeroPadInteger( num ) {\r
-\r
-					var str = '00' + parseInt( num );\r
-					return str.substring( str.length - 2 );\r
-\r
-				}\r
-\r
-				/**\r
-				 * Limits the frequency at which a function can be called.\r
-				 */\r
-				function debounce( fn, ms ) {\r
-\r
-					var lastTime = 0,\r
-						timeout;\r
-\r
-					return function() {\r
-\r
-						var args = arguments;\r
-						var context = this;\r
-\r
-						clearTimeout( timeout );\r
-\r
-						var timeSinceLastCall = Date.now() - lastTime;\r
-						if( timeSinceLastCall > ms ) {\r
-							fn.apply( context, args );\r
-							lastTime = Date.now();\r
-						}\r
-						else {\r
-							timeout = setTimeout( function() {\r
-								fn.apply( context, args );\r
-								lastTime = Date.now();\r
-							}, ms - timeSinceLastCall );\r
-						}\r
-\r
-					}\r
-\r
-				}\r
-\r
-			})();\r
-\r
-			function sendCommand(type, data){\r
-				window.opener.postMessage({\r
-					namespace: "botc-control",\r
-					type: type,\r
-					data: data\r
-				}, "*");\r
-			}\r
-\r
-			let players = [];\r
-\r
-			function nextPhase(){\r
-				sendCommand("nextPhase");\r
-			}\r
-\r
-			function previousPhase(){\r
-				sendCommand("previousPhase");\r
-			}\r
-\r
-			function killPlayer() {\r
-				const name = document.getElementById("life token").value;\r
-				sendCommand("killPlayer", name);\r
-			}\r
-\r
-			function revivePlayer(){\r
-				const name = document.getElementById("life token").value;\r
-				sendCommand("revivePlayer", name);\r
-			}\r
-\r
-			function startGame(){\r
-				let names = document.getElementById('Participants').value;\r
-				players = names.split(",");\r
-				InitializeDropDowns();\r
-\r
-				sendCommand("startGame", names);\r
-			}\r
-\r
-      let nominatorSelect = document.getElementById("nominator");\r
-			let nomineeSelect = document.getElementById("nominee");\r
-			let lifeTokenSelect = document.getElementById("life token");\r
-\r
-      // Put Alive Players into the DropDown Menu\r
-			function InitializeDropDowns() {\r
-					while (nominatorSelect.hasChildNodes()) {\r
-						nominatorSelect.removeChild(nominatorSelect.firstChild);\r
-					}\r
-					while(nomineeSelect.hasChildNodes()){\r
-						nomineeSelect.removeChild(nomineeSelect.firstChild);\r
-					}\r
-					while(lifeTokenSelect.hasChildNodes()){\r
-						lifeTokenSelect.removeChild(lifeTokenSelect.firstChild);\r
-					}\r
-				\r
-         	for (let i = 0; i < players.length; i++) {\r
-             	let player = players[i];\r
-             	let el1 = document.createElement("option");\r
-							el1.textContent = player;\r
-							el1.value = player;\r
-							let el2 = document.createElement("option");\r
-							el2.textContent = player;\r
-							el2.value = player;\r
-							let el3 = document.createElement("option");\r
-							el3.textContent = player;\r
-							el3.value = player;\r
-							nominatorSelect.appendChild(el1);\r
-							nomineeSelect.appendChild(el2);\r
-							lifeTokenSelect.appendChild(el3);\r
-         	}\r
+<head>\r
+	<meta charset="utf-8">\r
+\r
+	<title>reveal.js - Spitter View</title>\r
+\r
+	<style>\r
+    body {\r
+      font-family: Helvetica;\r
+      font-size: 18px;\r
+    }\r
+\r
+    #current-slide,\r
+    #upcoming-slide,\r
+    #speaker-controls {\r
+      padding: 6px;\r
+      box-sizing: border-box;\r
+      -moz-box-sizing: border-box;\r
+    }\r
+\r
+    #current-slide iframe,\r
+    #upcoming-slide iframe {\r
+      width: 100%;\r
+      height: 100%;\r
+      border: 1px solid #ddd;\r
+    }\r
+\r
+    #current-slide .label,\r
+    #upcoming-slide .label {\r
+      position: absolute;\r
+      top: 10px;\r
+      left: 10px;\r
+      z-index: 2;\r
+    }\r
+\r
+    #connection-status {\r
+      position: absolute;\r
+      top: 0;\r
+      left: 0;\r
+      width: 100%;\r
+      height: 100%;\r
+      z-index: 20;\r
+      padding: 30% 20% 20% 20%;\r
+      font-size: 18px;\r
+      color: #222;\r
+      background: #fff;\r
+      text-align: center;\r
+      box-sizing: border-box;\r
+      line-height: 1.4;\r
+    }\r
+\r
+    .overlay-element {\r
+      height: 34px;\r
+      line-height: 34px;\r
+      padding: 0 10px;\r
+      text-shadow: none;\r
+      background: rgba(220, 220, 220, 0.8);\r
+      color: #222;\r
+      font-size: 14px;\r
+    }\r
+\r
+    .overlay-element.interactive:hover {\r
+      background: rgba(220, 220, 220, 1);\r
+    }\r
+\r
+    #current-slide {\r
+      position: absolute;\r
+      width: 60%;\r
+      height: 100%;\r
+      top: 0;\r
+      left: 0;\r
+      padding-right: 0;\r
+    }\r
+\r
+    #upcoming-slide {\r
+      position: absolute;\r
+      width: 40%;\r
+      height: 40%;\r
+      right: 0;\r
+      top: 0;\r
+    }\r
+\r
+    /* Speaker controls */\r
+    #speaker-controls {\r
+      position: absolute;\r
+      top: 40%;\r
+      right: 0;\r
+      width: 40%;\r
+      height: 60%;\r
+      overflow: auto;\r
+      font-size: 18px;\r
+    }\r
+\r
+    .speaker-controls-time.hidden,\r
+    .speaker-controls-notes.hidden {\r
+      display: none;\r
+    }\r
+\r
+    .speaker-controls-time .label,\r
+    .speaker-controls-pace .label,\r
+    .speaker-controls-notes .label {\r
+      text-transform: uppercase;\r
+      font-weight: normal;\r
+      font-size: 0.66em;\r
+      color: #666;\r
+      margin: 0;\r
+    }\r
+\r
+    .speaker-controls-time, .speaker-controls-pace {\r
+      border-bottom: 1px solid rgba(200, 200, 200, 0.5);\r
+      margin-bottom: 10px;\r
+      padding: 10px 16px;\r
+      padding-bottom: 20px;\r
+      cursor: pointer;\r
+    }\r
+\r
+    .speaker-controls-time .reset-button {\r
+      opacity: 0;\r
+      float: right;\r
+      color: #666;\r
+      text-decoration: none;\r
+    }\r
+\r
+    .speaker-controls-time:hover .reset-button {\r
+      opacity: 1;\r
+    }\r
+\r
+    .speaker-controls-time .timer,\r
+    .speaker-controls-time .clock {\r
+      width: 50%;\r
+    }\r
+\r
+    .speaker-controls-time .timer,\r
+    .speaker-controls-time .clock,\r
+    .speaker-controls-time .pacing .hours-value,\r
+    .speaker-controls-time .pacing .minutes-value,\r
+    .speaker-controls-time .pacing .seconds-value {\r
+      font-size: 1.9em;\r
+    }\r
+\r
+    .speaker-controls-time .timer {\r
+      float: left;\r
+    }\r
+\r
+    .speaker-controls-time .clock {\r
+      float: right;\r
+      text-align: right;\r
+    }\r
+\r
+    .speaker-controls-time span.mute {\r
+      opacity: 0.3;\r
+    }\r
+\r
+    .speaker-controls-time .pacing-title {\r
+      margin-top: 5px;\r
+    }\r
+\r
+    .speaker-controls-time .pacing.ahead {\r
+      color: blue;\r
+    }\r
+\r
+    .speaker-controls-time .pacing.on-track {\r
+      color: green;\r
+    }\r
+\r
+    .speaker-controls-time .pacing.behind {\r
+      color: red;\r
+    }\r
+\r
+    .speaker-controls-notes {\r
+      padding: 10px 16px;\r
+    }\r
+\r
+    .speaker-controls-notes .value {\r
+      margin-top: 5px;\r
+      line-height: 1.4;\r
+      font-size: 1.2em;\r
+    }\r
+\r
+    /* Layout selector */\r
+    #speaker-layout {\r
+      position: absolute;\r
+      top: 10px;\r
+      right: 10px;\r
+      color: #222;\r
+      z-index: 10;\r
+    }\r
+\r
+    #speaker-layout select {\r
+      position: absolute;\r
+      width: 100%;\r
+      height: 100%;\r
+      top: 0;\r
+      left: 0;\r
+      border: 0;\r
+      box-shadow: 0;\r
+      cursor: pointer;\r
+      opacity: 0;\r
+\r
+      font-size: 1em;\r
+      background-color: transparent;\r
+\r
+      -moz-appearance: none;\r
+      -webkit-appearance: none;\r
+      -webkit-tap-highlight-color: rgba(0, 0, 0, 0);\r
+    }\r
+\r
+    #speaker-layout select:focus {\r
+      outline: none;\r
+      box-shadow: none;\r
+    }\r
+\r
+    .clear {\r
+      clear: both;\r
+    }\r
+\r
+    /* Speaker layout: Wide */\r
+    body[data-speaker-layout="wide"] #current-slide,\r
+    body[data-speaker-layout="wide"] #upcoming-slide {\r
+      width: 50%;\r
+      height: 45%;\r
+      padding: 6px;\r
+    }\r
+\r
+    body[data-speaker-layout="wide"] #current-slide {\r
+      top: 0;\r
+      left: 0;\r
+    }\r
+\r
+    body[data-speaker-layout="wide"] #upcoming-slide {\r
+      top: 0;\r
+      left: 50%;\r
+    }\r
+\r
+    body[data-speaker-layout="wide"] #speaker-controls {\r
+      top: 45%;\r
+      left: 0;\r
+      width: 100%;\r
+      height: 50%;\r
+      font-size: 1.25em;\r
+    }\r
+\r
+    /* Speaker layout: Tall */\r
+    body[data-speaker-layout="tall"] #current-slide,\r
+    body[data-speaker-layout="tall"] #upcoming-slide {\r
+      width: 45%;\r
+      height: 50%;\r
+      padding: 6px;\r
+    }\r
+\r
+    body[data-speaker-layout="tall"] #current-slide {\r
+      top: 0;\r
+      left: 0;\r
+    }\r
+\r
+    body[data-speaker-layout="tall"] #upcoming-slide {\r
+      top: 50%;\r
+      left: 0;\r
+    }\r
+\r
+    body[data-speaker-layout="tall"] #speaker-controls {\r
+      padding-top: 40px;\r
+      top: 0;\r
+      left: 45%;\r
+      width: 55%;\r
+      height: 100%;\r
+      font-size: 1.25em;\r
+    }\r
+\r
+    /* Speaker layout: Notes only */\r
+    body[data-speaker-layout="notes-only"] #current-slide,\r
+    body[data-speaker-layout="notes-only"] #upcoming-slide {\r
+      display: none;\r
+    }\r
+\r
+    body[data-speaker-layout="notes-only"] #speaker-controls {\r
+      padding-top: 40px;\r
+      top: 0;\r
+      left: 0;\r
+      width: 100%;\r
+      height: 100%;\r
+      font-size: 1.25em;\r
+    }\r
+\r
+    @media screen and (max-width: 1080px) {\r
+      body[data-speaker-layout="default"] #speaker-controls {\r
+        font-size: 16px;\r
       }\r
+    }\r
 \r
-			function showNomination(){\r
-				sendCommand("showNomination", nominatorSelect.value + "," + nomineeSelect.value);\r
+    @media screen and (max-width: 900px) {\r
+      body[data-speaker-layout="default"] #speaker-controls {\r
+        font-size: 14px;\r
+      }\r
+    }\r
+\r
+    @media screen and (max-width: 800px) {\r
+      body[data-speaker-layout="default"] #speaker-controls {\r
+        font-size: 12px;\r
+      }\r
+    }\r
+\r
+	</style>\r
+</head>\r
+\r
+<body>\r
+\r
+<div id="connection-status">Loading speaker view...</div>\r
+\r
+<div id="current-slide"></div>\r
+<div id="upcoming-slide"><span class="overlay-element label">Upcoming</span></div>\r
+<div id="speaker-controls">\r
+	<div class="speaker-controls-time">\r
+		<h4 class="label">Time</h4>\r
+		<div class="clock">\r
+			<span class="clock-value">0:00 AM</span>\r
+		</div>\r
+		<div class="timer">\r
+			<span class="hours-value">00</span><span class="minutes-value">:00</span><span\r
+			class="seconds-value">:00</span>\r
+		</div>\r
+		<div class="clear"></div>\r
+\r
+		<h4 class="label pacing-title" style="display: none">Pacing – Time to finish current slide</h4>\r
+		<div class="pacing" style="display: none">\r
+			<span class="hours-value">00</span><span class="minutes-value">:00</span><span\r
+			class="seconds-value">:00</span>\r
+		</div>\r
+	</div>\r
+\r
+	<div id="botc-controls">\r
+		<div id="init">\r
+			<h3>Initialize Game</h3>\r
+			<button onclick="startGame()">Start Game</button>\r
+			<input id="Participants" placeholder="Name,Name,Name">\r
+		</div>\r
+		<h3>Phase Controls</h3>\r
+		<button onclick="previousPhase()">Previous Phase</button>\r
+		<button onclick="nextPhase()">Next Phase</button>\r
+		<h3>Nominations</h3>\r
+		<select id="nominator">\r
+			<option>Need to Initialize Players!</option>\r
+		</select>\r
+		<span>=> Nominates =></span>\r
+		<select id="nominee">\r
+			<option>Need to Initialize Players!</option>\r
+		</select>\r
+		<button onclick="showNomination()">Show Nomination</button>\r
+		<button onclick="startVote()">Start Vote</button>\r
+		<input id="vote result" placeholder="Number of Votes">\r
+		<button onclick="voteResult()">Send Result</button>\r
+		<select id="life token">\r
+			<option>Need to Initialize Players!</option>\r
+		</select>\r
+		<button onclick="killPlayer()">Kill Player</button>\r
+		<button onclick="revivePlayer()">Revive Player</button>\r
+	</div>\r
+</div>\r
+<div id="speaker-layout" class="overlay-element interactive">\r
+	<span class="speaker-layout-label"></span>\r
+	<select class="speaker-layout-dropdown"></select>\r
+</div>\r
+\r
+<script>\r
+\r
+	(function() {\r
+\r
+		var notes,\r
+			notesValue,\r
+			currentState,\r
+			currentSlide,\r
+			upcomingSlide,\r
+			layoutLabel,\r
+			layoutDropdown,\r
+			pendingCalls = {},\r
+			lastRevealApiCallId = 0,\r
+			connected = false;\r
+\r
+		var connectionStatus = document.querySelector('#connection-status');\r
+\r
+		var SPEAKER_LAYOUTS = {\r
+			'default': 'Default',\r
+			'wide': 'Wide',\r
+			'tall': 'Tall',\r
+			'notes-only': 'Notes only',\r
+		};\r
+\r
+		setupLayout();\r
+\r
+		let openerOrigin;\r
+\r
+		try {\r
+			openerOrigin = window.opener.location.origin;\r
+		} catch (error) {\r
+			console.warn(error);\r
+		}\r
+\r
+		// In order to prevent XSS, the speaker view will only run if its\r
+		// opener has the same origin as itself\r
+		if (window.location.origin !== openerOrigin) {\r
+			connectionStatus.innerHTML = 'Cross origin error.<br>The speaker window can only be opened from the same origin.';\r
+			return;\r
+		}\r
+\r
+		var connectionTimeout = setTimeout(function() {\r
+			connectionStatus.innerHTML = 'Error connecting to main window.<br>Please try closing and reopening the speaker view.';\r
+		}, 5000);\r
+\r
+		window.addEventListener('message', function(event) {\r
+\r
+			// Validate the origin of all messages to avoid parsing messages\r
+			// that aren't meant for us. Ignore when running off file:// so\r
+			// that the speaker view continues to work without a web server.\r
+			if (window.location.origin !== event.origin && window.location.origin !== 'file://') {\r
+				return;\r
 			}\r
 \r
-			function startVote(){\r
-				sendCommand("startCountdown");\r
+			clearTimeout(connectionTimeout);\r
+			connectionStatus.style.display = 'none';\r
+\r
+			var data = JSON.parse(event.data);\r
+\r
+			// The overview mode is only useful to the reveal.js instance\r
+			// where navigation occurs so we don't sync it\r
+			if (data.state) {\r
+				delete data.state.overview;\r
 			}\r
 \r
-			function voteResult(){\r
-				let result = document.getElementById("vote result").value;\r
-				sendCommand("voteResult", result);\r
+			// Messages sent by the notes plugin inside of the main window\r
+			if (data && data.namespace === 'reveal-notes') {\r
+				if (data.type === 'connect') {\r
+					handleConnectMessage(data);\r
+				} else if (data.type === 'state') {\r
+					handleStateMessage(data);\r
+				} else if (data.type === 'return') {\r
+					pendingCalls[data.callId](data.result);\r
+					delete pendingCalls[data.callId];\r
+				}\r
 			}\r
-		<\/script>\r
-	</body>\r
+			// Messages sent by the reveal.js inside of the current slide preview\r
+			else if (data && data.namespace === 'reveal') {\r
+				const supportedEvents = [\r
+					'slidechanged',\r
+					'fragmentshown',\r
+					'fragmenthidden',\r
+					'paused',\r
+					'resumed',\r
+					'previewiframe',\r
+					'previewimage',\r
+					'previewvideo',\r
+					'closeoverlay',\r
+				];\r
+\r
+				if (/ready/.test(data.eventName)) {\r
+					// Send a message back to notify that the handshake is complete\r
+					window.opener.postMessage(\r
+						JSON.stringify({ namespace: 'reveal-notes', type: 'connected' }), '*');\r
+				} else if (supportedEvents.includes(data.eventName) && currentState !== JSON.stringify(\r
+					data.state)) {\r
+					dispatchStateToMainWindow(data.state);\r
+				}\r
+			}\r
+\r
+		});\r
+\r
+		/**\r
+		 * Updates the presentation in the main window to match the state\r
+		 * of the presentation in the notes window.\r
+		 */\r
+		const dispatchStateToMainWindow = debounce((state) => {\r
+			window.opener.postMessage(JSON.stringify({ method: 'setState', args: [state] }), '*');\r
+		}, 500);\r
+\r
+		/**\r
+		 * Asynchronously calls the Reveal.js API of the main frame.\r
+		 */\r
+		function callRevealApi(methodName, methodArguments, callback) {\r
+\r
+			var callId = ++lastRevealApiCallId;\r
+			pendingCalls[callId] = callback;\r
+			window.opener.postMessage(JSON.stringify({\r
+				namespace: 'reveal-notes',\r
+				type: 'call',\r
+				callId: callId,\r
+				methodName: methodName,\r
+				arguments: methodArguments,\r
+			}), '*');\r
+\r
+		}\r
+\r
+		/**\r
+		 * Called when the main window is trying to establish a\r
+		 * connection.\r
+		 */\r
+		function handleConnectMessage(data) {\r
+\r
+			if (connected === false) {\r
+				connected = true;\r
+\r
+				setupIframes(data);\r
+				setupKeyboard();\r
+				setupNotes();\r
+				setupTimer();\r
+				setupHeartbeat();\r
+			}\r
+\r
+		}\r
+\r
+		/**\r
+		 * Called when the main window sends an updated state.\r
+		 */\r
+		function handleStateMessage(data) {\r
+\r
+			// Store the most recently set state to avoid circular loops\r
+			// applying the same state\r
+			currentState = JSON.stringify(data.state);\r
+\r
+			// No need for updating the notes in case of fragment changes\r
+			if (data.notes) {\r
+				notes.classList.remove('hidden');\r
+				notesValue.style.whiteSpace = data.whitespace;\r
+				if (data.markdown) {\r
+					notesValue.innerHTML = marked.parse(data.notes);\r
+				} else {\r
+					notesValue.innerHTML = data.notes;\r
+				}\r
+			} else {\r
+				notes.classList.add('hidden');\r
+			}\r
+\r
+			// Don't show lightboxes in the upcoming slide\r
+			const { previewVideo, previewImage, previewIframe, ...upcomingState } = data.state;\r
+\r
+			// Update the note slides\r
+			currentSlide.contentWindow.postMessage(\r
+				JSON.stringify({ method: 'setState', args: [data.state] }), '*');\r
+			upcomingSlide.contentWindow.postMessage(\r
+				JSON.stringify({ method: 'setState', args: [upcomingState] }), '*');\r
+			upcomingSlide.contentWindow.postMessage(JSON.stringify({ method: 'next' }), '*');\r
+\r
+		}\r
+\r
+		// Limit to max one state update per X ms\r
+		handleStateMessage = debounce(handleStateMessage, 200);\r
+\r
+		/**\r
+		 * Forward keyboard events to the current slide window.\r
+		 * This enables keyboard events to work even if focus\r
+		 * isn't set on the current slide iframe.\r
+		 *\r
+		 * Block F5 default handling, it reloads and disconnects\r
+		 * the speaker notes window.\r
+		 */\r
+		function setupKeyboard() {\r
+\r
+			document.addEventListener('keydown', function(event) {\r
+				if (event.keyCode === 116 || (event.metaKey && event.keyCode === 82)) {\r
+					event.preventDefault();\r
+					return false;\r
+				}\r
+				currentSlide.contentWindow.postMessage(\r
+					JSON.stringify({ method: 'triggerKey', args: [event.keyCode] }), '*');\r
+			});\r
+\r
+		}\r
+\r
+		/**\r
+		 * Creates the preview iframes.\r
+		 */\r
+		function setupIframes(data) {\r
+\r
+			var params = [\r
+				'receiver',\r
+				'progress=false',\r
+				'history=false',\r
+				'transition=none',\r
+				'autoSlide=0',\r
+				'backgroundTransition=none',\r
+			].join('&');\r
+\r
+			var urlSeparator = /\\?/.test(data.url) ? '&' : '?';\r
+			var hash = '#/' + data.state.indexh + '/' + data.state.indexv;\r
+			var currentURL = data.url + urlSeparator + params\r
+				+ '&scrollActivationWidth=false&postMessageEvents=true' + hash;\r
+			var upcomingURL = data.url + urlSeparator + params\r
+				+ '&scrollActivationWidth=false&controls=false' + hash;\r
+\r
+			currentSlide = document.createElement('iframe');\r
+			currentSlide.setAttribute('width', 1280);\r
+			currentSlide.setAttribute('height', 1024);\r
+			currentSlide.setAttribute('src', currentURL);\r
+			document.querySelector('#current-slide').appendChild(currentSlide);\r
+\r
+			upcomingSlide = document.createElement('iframe');\r
+			upcomingSlide.setAttribute('width', 640);\r
+			upcomingSlide.setAttribute('height', 512);\r
+			upcomingSlide.setAttribute('src', upcomingURL);\r
+			document.querySelector('#upcoming-slide').appendChild(upcomingSlide);\r
+\r
+		}\r
+\r
+		/**\r
+		 * Setup the notes UI.\r
+		 */\r
+		function setupNotes() {\r
+\r
+			notes = document.querySelector('.speaker-controls-notes');\r
+			notesValue = document.querySelector('.speaker-controls-notes .value');\r
+\r
+		}\r
+\r
+		/**\r
+		 * We send out a heartbeat at all times to ensure we can\r
+		 * reconnect with the main presentation window after reloads.\r
+		 */\r
+		function setupHeartbeat() {\r
+\r
+			setInterval(() => {\r
+				window.opener.postMessage(JSON.stringify({ namespace: 'reveal-notes', type: 'heartbeat' }),\r
+					'*');\r
+			}, 1000);\r
+\r
+		}\r
+\r
+		function getTimings(callback) {\r
+\r
+			callRevealApi('getSlidesAttributes', [], function(slideAttributes) {\r
+				callRevealApi('getConfig', [], function(config) {\r
+					var totalTime = config.totalTime;\r
+					var minTimePerSlide = config.minimumTimePerSlide || 0;\r
+					var defaultTiming = config.defaultTiming;\r
+					if ((defaultTiming == null) && (totalTime == null)) {\r
+						callback(null);\r
+						return;\r
+					}\r
+					// Setting totalTime overrides defaultTiming\r
+					if (totalTime) {\r
+						defaultTiming = 0;\r
+					}\r
+					var timings = [];\r
+					for (var i in slideAttributes) {\r
+						var slide = slideAttributes[i];\r
+						var timing = defaultTiming;\r
+						if (slide.hasOwnProperty('data-timing')) {\r
+							var t = slide['data-timing'];\r
+							timing = parseInt(t);\r
+							if (isNaN(timing)) {\r
+								console.warn(\r
+									'Could not parse timing \\'' + t + '\\' of slide ' + i + '; using default of '\r
+									+ defaultTiming);\r
+								timing = defaultTiming;\r
+							}\r
+						}\r
+						timings.push(timing);\r
+					}\r
+					if (totalTime) {\r
+						// After we've allocated time to individual slides, we summarize it and\r
+						// subtract it from the total time\r
+						var remainingTime = totalTime - timings.reduce(function(a, b) {\r
+							return a + b;\r
+						}, 0);\r
+						// The remaining time is divided by the number of slides that have 0 seconds\r
+						// allocated at the moment, giving the average time-per-slide on the remaining slides\r
+						var remainingSlides = (timings.filter(function(x) {\r
+							return x == 0;\r
+						})).length;\r
+						var timePerSlide = Math.round(remainingTime / remainingSlides, 0);\r
+						// And now we replace every zero-value timing with that average\r
+						timings = timings.map(function(x) {\r
+							return (x == 0 ? timePerSlide : x);\r
+						});\r
+					}\r
+					var slidesUnderMinimum = timings.filter(function(x) {\r
+						return (x < minTimePerSlide);\r
+					}).length;\r
+					if (slidesUnderMinimum) {\r
+						message = 'The pacing time for ' + slidesUnderMinimum\r
+							+ ' slide(s) is under the configured minimum of ' + minTimePerSlide\r
+							+ ' seconds. Check the data-timing attribute on individual slides, or consider increasing the totalTime or minimumTimePerSlide configuration options (or removing some slides).';\r
+						alert(message);\r
+					}\r
+					callback(timings);\r
+				});\r
+			});\r
+\r
+		}\r
+\r
+		/**\r
+		 * Return the number of seconds allocated for presenting\r
+		 * all slides up to and including this one.\r
+		 */\r
+		function getTimeAllocated(timings, callback) {\r
+\r
+			callRevealApi('getSlidePastCount', [], function(currentSlide) {\r
+				var allocated = 0;\r
+				for (var i in timings.slice(0, currentSlide + 1)) {\r
+					allocated += timings[i];\r
+				}\r
+				callback(allocated);\r
+			});\r
+\r
+		}\r
+\r
+		/**\r
+		 * Create the timer and clock and start updating them\r
+		 * at an interval.\r
+		 */\r
+		function setupTimer() {\r
+\r
+			var start = new Date(),\r
+				timeEl = document.querySelector('.speaker-controls-time'),\r
+				clockEl = timeEl.querySelector('.clock-value'),\r
+				hoursEl = timeEl.querySelector('.hours-value'),\r
+				minutesEl = timeEl.querySelector('.minutes-value'),\r
+				secondsEl = timeEl.querySelector('.seconds-value'),\r
+				pacingTitleEl = timeEl.querySelector('.pacing-title'),\r
+				pacingEl = timeEl.querySelector('.pacing'),\r
+				pacingHoursEl = pacingEl.querySelector('.hours-value'),\r
+				pacingMinutesEl = pacingEl.querySelector('.minutes-value'),\r
+				pacingSecondsEl = pacingEl.querySelector('.seconds-value');\r
+\r
+			var timings = null;\r
+			getTimings(function(_timings) {\r
+\r
+				timings = _timings;\r
+				if (_timings !== null) {\r
+					pacingTitleEl.style.removeProperty('display');\r
+					pacingEl.style.removeProperty('display');\r
+				}\r
+\r
+				// Update once directly\r
+				_updateTimer();\r
+\r
+				// Then update every second\r
+				setInterval(_updateTimer, 1000);\r
+\r
+			});\r
+\r
+			function _resetTimer() {\r
+\r
+				if (timings == null) {\r
+					start = new Date();\r
+					_updateTimer();\r
+				} else {\r
+					// Reset timer to beginning of current slide\r
+					getTimeAllocated(timings, function(slideEndTimingSeconds) {\r
+						var slideEndTiming = slideEndTimingSeconds * 1000;\r
+						callRevealApi('getSlidePastCount', [], function(currentSlide) {\r
+							var currentSlideTiming = timings[currentSlide] * 1000;\r
+							var previousSlidesTiming = slideEndTiming - currentSlideTiming;\r
+							var now = new Date();\r
+							start = new Date(now.getTime() - previousSlidesTiming);\r
+							_updateTimer();\r
+						});\r
+					});\r
+				}\r
+\r
+			}\r
+\r
+			function _displayTime(hrEl, minEl, secEl, time) {\r
+\r
+				var sign = Math.sign(time) == -1 ? '-' : '';\r
+				time = Math.abs(Math.round(time / 1000));\r
+				var seconds = time % 60;\r
+				var minutes = Math.floor(time / 60) % 60;\r
+				var hours = Math.floor(time / (60 * 60));\r
+				hrEl.innerHTML = sign + zeroPadInteger(hours);\r
+				if (hours == 0) {\r
+					hrEl.classList.add('mute');\r
+				} else {\r
+					hrEl.classList.remove('mute');\r
+				}\r
+				minEl.innerHTML = ':' + zeroPadInteger(minutes);\r
+				if (hours == 0 && minutes == 0) {\r
+					minEl.classList.add('mute');\r
+				} else {\r
+					minEl.classList.remove('mute');\r
+				}\r
+				secEl.innerHTML = ':' + zeroPadInteger(seconds);\r
+			}\r
+\r
+			function _updateTimer() {\r
+\r
+				var diff, hours, minutes, seconds,\r
+					now = new Date();\r
+\r
+				diff = now.getTime() - start.getTime();\r
+\r
+				clockEl.innerHTML = now.toLocaleTimeString('en-US',\r
+					{ hour12: true, hour: '2-digit', minute: '2-digit' });\r
+				_displayTime(hoursEl, minutesEl, secondsEl, diff);\r
+				if (timings !== null) {\r
+					_updatePacing(diff);\r
+				}\r
+\r
+			}\r
+\r
+			function _updatePacing(diff) {\r
+\r
+				getTimeAllocated(timings, function(slideEndTimingSeconds) {\r
+					var slideEndTiming = slideEndTimingSeconds * 1000;\r
+\r
+					callRevealApi('getSlidePastCount', [], function(currentSlide) {\r
+						var currentSlideTiming = timings[currentSlide] * 1000;\r
+						var timeLeftCurrentSlide = slideEndTiming - diff;\r
+						if (timeLeftCurrentSlide < 0) {\r
+							pacingEl.className = 'pacing behind';\r
+						} else if (timeLeftCurrentSlide < currentSlideTiming) {\r
+							pacingEl.className = 'pacing on-track';\r
+						} else {\r
+							pacingEl.className = 'pacing ahead';\r
+						}\r
+						_displayTime(pacingHoursEl, pacingMinutesEl, pacingSecondsEl, timeLeftCurrentSlide);\r
+					});\r
+				});\r
+			}\r
+\r
+		}\r
+\r
+		/**\r
+		 * Sets up the speaker view layout and layout selector.\r
+		 */\r
+		function setupLayout() {\r
+\r
+			layoutDropdown = document.querySelector('.speaker-layout-dropdown');\r
+			layoutLabel = document.querySelector('.speaker-layout-label');\r
+\r
+			// Render the list of available layouts\r
+			for (var id in SPEAKER_LAYOUTS) {\r
+				var option = document.createElement('option');\r
+				option.setAttribute('value', id);\r
+				option.textContent = SPEAKER_LAYOUTS[id];\r
+				layoutDropdown.appendChild(option);\r
+			}\r
+\r
+			// Monitor the dropdown for changes\r
+			layoutDropdown.addEventListener('change', function(event) {\r
+\r
+				setLayout(layoutDropdown.value);\r
+\r
+			}, false);\r
+\r
+			// Restore any currently persisted layout\r
+			setLayout(getLayout());\r
+\r
+		}\r
+\r
+		/**\r
+		 * Sets a new speaker view layout. The layout is persisted\r
+		 * in local storage.\r
+		 */\r
+		function setLayout(value) {\r
+\r
+			var title = SPEAKER_LAYOUTS[value];\r
+\r
+			layoutLabel.innerHTML = 'Layout' + (title ? (': ' + title) : '');\r
+			layoutDropdown.value = value;\r
+\r
+			document.body.setAttribute('data-speaker-layout', value);\r
+\r
+			// Persist locally\r
+			if (supportsLocalStorage()) {\r
+				window.localStorage.setItem('reveal-speaker-layout', value);\r
+			}\r
+\r
+		}\r
+\r
+		/**\r
+		 * Returns the ID of the most recently set speaker layout\r
+		 * or our default layout if none has been set.\r
+		 */\r
+		function getLayout() {\r
+\r
+			if (supportsLocalStorage()) {\r
+				var layout = window.localStorage.getItem('reveal-speaker-layout');\r
+				if (layout) {\r
+					return layout;\r
+				}\r
+			}\r
+\r
+			// Default to the first record in the layouts hash\r
+			for (var id in SPEAKER_LAYOUTS) {\r
+				return id;\r
+			}\r
+\r
+		}\r
+\r
+		function supportsLocalStorage() {\r
+\r
+			try {\r
+				localStorage.setItem('test', 'test');\r
+				localStorage.removeItem('test');\r
+				return true;\r
+			} catch (e) {\r
+				return false;\r
+			}\r
+\r
+		}\r
+\r
+		function zeroPadInteger(num) {\r
+\r
+			var str = '00' + parseInt(num);\r
+			return str.substring(str.length - 2);\r
+\r
+		}\r
+\r
+		/**\r
+		 * Limits the frequency at which a function can be called.\r
+		 */\r
+		function debounce(fn, ms) {\r
+\r
+			var lastTime = 0,\r
+				timeout;\r
+\r
+			return function() {\r
+\r
+				var args = arguments;\r
+				var context = this;\r
+\r
+				clearTimeout(timeout);\r
+\r
+				var timeSinceLastCall = Date.now() - lastTime;\r
+				if (timeSinceLastCall > ms) {\r
+					fn.apply(context, args);\r
+					lastTime = Date.now();\r
+				} else {\r
+					timeout = setTimeout(function() {\r
+						fn.apply(context, args);\r
+						lastTime = Date.now();\r
+					}, ms - timeSinceLastCall);\r
+				}\r
+\r
+			};\r
+\r
+		}\r
+\r
+	})();\r
+\r
+	function sendCommand(type, data) {\r
+		window.opener.postMessage({\r
+			namespace: 'botc-control',\r
+			type: type,\r
+			data: data,\r
+		}, '*');\r
+	}\r
+\r
+	let players = [];\r
+\r
+	function nextPhase() {\r
+		sendCommand('nextPhase');\r
+	}\r
+\r
+	function previousPhase() {\r
+		sendCommand('previousPhase');\r
+	}\r
+\r
+	function killPlayer() {\r
+		const name = document.getElementById('life token').value;\r
+		sendCommand('killPlayer', name);\r
+	}\r
+\r
+	function revivePlayer() {\r
+		const name = document.getElementById('life token').value;\r
+		sendCommand('revivePlayer', name);\r
+	}\r
+\r
+	function startGame() {\r
+		let names = document.getElementById('Participants').value;\r
+		players = names.split(',');\r
+		InitializeDropDowns();\r
+\r
+		sendCommand('startGame', names);\r
+	}\r
+\r
+	let nominatorSelect = document.getElementById('nominator');\r
+	let nomineeSelect = document.getElementById('nominee');\r
+	let lifeTokenSelect = document.getElementById('life token');\r
+\r
+	// Put Alive Players into the DropDown Menu\r
+	function InitializeDropDowns() {\r
+		while (nominatorSelect.hasChildNodes()) {\r
+			nominatorSelect.removeChild(nominatorSelect.firstChild);\r
+		}\r
+		while (nomineeSelect.hasChildNodes()) {\r
+			nomineeSelect.removeChild(nomineeSelect.firstChild);\r
+		}\r
+		while (lifeTokenSelect.hasChildNodes()) {\r
+			lifeTokenSelect.removeChild(lifeTokenSelect.firstChild);\r
+		}\r
+\r
+		for (let i = 0; i < players.length; i++) {\r
+			let player = players[i];\r
+			let el1 = document.createElement('option');\r
+			el1.textContent = player;\r
+			el1.value = player;\r
+			let el2 = document.createElement('option');\r
+			el2.textContent = player;\r
+			el2.value = player;\r
+			let el3 = document.createElement('option');\r
+			el3.textContent = player;\r
+			el3.value = player;\r
+			nominatorSelect.appendChild(el1);\r
+			nomineeSelect.appendChild(el2);\r
+			lifeTokenSelect.appendChild(el3);\r
+		}\r
+	}\r
+\r
+	function showNomination() {\r
+		sendCommand('showNomination', nominatorSelect.value + ',' + nomineeSelect.value);\r
+	}\r
+\r
+	function startVote() {\r
+		sendCommand('startCountdown');\r
+	}\r
+\r
+	function voteResult() {\r
+		let result = document.getElementById('vote result').value;\r
+		sendCommand('voteResult', result);\r
+	}\r
+<\/script>\r
+</body>\r
 </html>`;
 function H() {
   return { async: !1, breaks: !1, extensions: null, gfm: !0, hooks: null, pedantic: !1, renderer: null, silent: !1, tokenizer: null, walkTokens: null };
