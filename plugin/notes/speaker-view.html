@@ -340,6 +340,8 @@
 		<h3>Phase Controls</h3>
 		<button onclick="previousPhase()">Previous Phase</button>
 		<button onclick="nextPhase()">Next Phase</button>
+		<input id="day minutes" placeholder="Length of Day in Minutes">
+		<button onclick="startDay()">Start Day</button>
 		<h3>Nominations</h3>
 		<select id="nominator">
 			<option>Need to Initialize Players!</option>
@@ -349,9 +351,11 @@
 			<option>Need to Initialize Players!</option>
 		</select>
 		<button onclick="showNomination()">Show Nomination</button>
+		<br>
 		<button onclick="startVote()">Start Vote</button>
 		<input id="vote result" placeholder="Number of Votes">
 		<button onclick="voteResult()">Send Result</button>
+		<h3>God Controls</h3>
 		<select id="life token">
 			<option>Need to Initialize Players!</option>
 		</select>
@@ -1017,8 +1021,16 @@
 	}
 
 	function voteResult() {
-		let result = document.getElementById('vote result').value;
+		let result = {
+			numberOfVotes: document.getElementById('vote result').value,
+			nominee: nomineeSelect.value
+		}
 		sendCommand('voteResult', result);
+	}
+
+	function startDay(){
+		let minutes = document.getElementById('day minutes').value;
+		sendCommand('startDay', minutes);
 	}
 </script>
 </body>

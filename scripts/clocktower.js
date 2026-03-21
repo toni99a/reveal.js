@@ -57,7 +57,7 @@ window.addEventListener('message', event => {
 			showNomination(event.data.data);
 			break;
 		case 'startCountdown':
-			countdown(6);
+			voteCountdown(6);
 			break;
 		case 'voteResult':
 			voteResult(event.data.data);
@@ -67,6 +67,9 @@ window.addEventListener('message', event => {
 			break;
 		case 'revivePlayer':
 			revivePlayer(event.data.data);
+			break;
+		case 'startDay':
+			dayCountdown(event.data.data);
 			break;
 	}
 });
@@ -149,8 +152,25 @@ let aboutToDie = 'Nobody';
 let currentHighestVote = -1;
 let neededToDie = 0;
 
+let tokenSize = 100;
+let tokenFontSize = 20;
+let aliveColor = '#4a90e2';
+let deadColor = '#8290a0';
+
 function StartGame(names) {
 	let namesList = names.split(',');
+	let longestName = namesList[0];
+	namesList.forEach(name => {
+		if(name.length > longestName.length){
+			longestName = name;
+		}
+	});
+
+
+
+	let radius = 600;
+	tokenSize = 2 * Math.PI * radius / (namesList.length * 4);
+	tokenFontSize = tokenSize/(longestName.length/2);
 
 	let id = 0;
 	namesList.forEach(name => {
@@ -160,42 +180,41 @@ function StartGame(names) {
 		entry.setAttribute("id", 'name' + id);
 		entry.setAttribute("class", 'lifetoken');
 		entry.setAttribute("style", 'position: absolute;\n'
-			+ '  width: 60px;\n'
-			+ '  height: 60px;\n'
-			+ '  background: #4a90e2;\n'
+			+ '  width: ' + tokenSize + 'px;\n'
+			+ '  height: ' + tokenSize + 'px;\n'
+			+ '  background: '+ aliveColor + ';\n'
 			+ '  color: white;\n'
 			+ '  border-radius: 8px;\n'
 			+ '  display: flex;\n'
 			+ '  align-items: center;\n'
 			+ '  justify-content: center;\n'
 			+ '  font-family: Arial, sans-serif;\n'
-			+ '  font-size: 18px;\n')
+			+ '  font-size: ' + tokenFontSize + 'px;\n')
 		entry.appendChild(document.createTextNode(name));
 		playerCircle.appendChild(entry);
 		id++;
 	});
 
-	arrangeTownSquare(200,400);
+	arrangeTownSquare(200,360, radius);
 
 	let roleDistribution = roleDistributionTable[players.length];
 	townsfolkCount = roleDistribution.Townsfolk;
 	outsiderCount = roleDistribution.Outsiders;
 	minionCount = roleDistribution.Minions;
-	//document.getElementById('Townsfolk').innerText = 'Townsfolk: '
-	//	+ townsfolkCount;
-	//document.getElementById('Outsiders').innerText = 'Outsiders: '
-	//	+ outsiderCount;
-	//document.getElementById('Minions').innerText = 'Minions: ' + minionCount;
+	document.getElementById('Townsfolk').innerText = 'Townsfolk: '
+		+ townsfolkCount;
+	document.getElementById('Outsiders').innerText = 'Outsiders: '
+		+ outsiderCount;
+	document.getElementById('Minions').innerText = 'Minions: ' + minionCount;
 }
 
-function arrangeTownSquare(centerX, centerY, radius = 400){
+function arrangeTownSquare(centerX, centerY, radius = 600){
 	const container = document.getElementById("townsquare");
 	const elements = container.querySelectorAll('.lifetoken');
 	const total = elements.length;
 	const startAngleRad = -Math.PI;
 	const angleIncrement = (Math.PI / (total-1));
 
-	console.log("Arranging " + total + " elements.");
 	elements.forEach((element, i) => {
 		const angle = startAngleRad + i * angleIncrement;
 		const x = centerX + radius * Math.cos(angle);
@@ -218,8 +237,7 @@ function killPlayer(name) {
 	if (playerID > -1) {
 		players.at(playerID).alive = false;
 	}
-	console.log('That ' + playerID + ' ' + name + ' is alive, is ' + players.at(
-		playerID).alive);
+	updateLifeToken(playerID);
 }
 
 function revivePlayer(name) {
@@ -228,12 +246,20 @@ function revivePlayer(name) {
 		players.at(playerID).alive = true;
 		players.at(playerID).ghostVote = true;
 	}
-	console.log('That ' + playerID + ' ' + name + ' is alive, is ' + players.at(
-		playerID).alive);
+	updateLifeToken(playerID);
+}
+
+function updateLifeToken(playerID){
+	let alive = players.at(playerID).alive;
+	let entry = document.getElementById("name" + playerID);
+	let color = alive ? aliveColor : deadColor;
+
+	entry.style.background = color;
+	entry.style.color = alive ? 'white' : 'grey';
 }
 
 function nextPhase() {
-	currentPhase = (currentPhase + 1) % 5;
+	currentPhase = (currentPhase + 1) % 4;
 	toCurrentPhaseSlide();
 	if (currentPhase === 0) {
 		IncrementRoundNumber(1);
@@ -242,7 +268,7 @@ function nextPhase() {
 
 function previousPhase() {
 	if (currentPhase === 0) {
-		currentPhase = 4;
+		currentPhase = 3;
 		IncrementRoundNumber(-1);
 	} else {
 		currentPhase--;
@@ -261,7 +287,7 @@ function toCurrentPhaseSlide() {
 }
 
 function IncrementRoundNumber(addend) {
-	round = (round + addend) % 5;
+	round = (round + addend) % 4;
 	UpdateRoundNumberTexts();
 	ResetForNewRound();
 }
@@ -272,11 +298,13 @@ function setRound(roundNumber) {
 }
 
 function UpdateRoundNumberTexts() {
+	/*
 	document.getElementById('night number').innerText = round;
-	document.getElementById('dawn number').innerText = round;
 	document.getElementById('day number').innerText = round;
 	document.getElementById('evening number').innerText = round;
 	document.getElementById('dusk number').innerText = round;
+	*/
+	document.getElementById('round number').innerText = round;
 	Reveal.sync();
 }
 
@@ -289,7 +317,7 @@ function ResetForNewRound() {
 }
 
 function showNomination(names) {
-	if (currentPhase !== 3) {
+	if (currentPhase !== 2) {
 		return;
 	}
 
@@ -302,27 +330,27 @@ function showNomination(names) {
 
 	if (currentHighestVote !== -1) {
 		neededToDie = Number(currentHighestVote) + 1;
-		document.getElementById('needed to tie').innerText = currentHighestVote
-			+ ' votes needed to tie, ';
+		document.getElementById('needed to tie number').innerText = currentHighestVote;
+		document.getElementById('needed to tie text').innerText = ' votes to tie, ';
 	} else {
-		document.getElementById('needed to tie').innerText = '';
+		document.getElementById('needed to tie number').innerText = '';
+		document.getElementById('needed to tie text').innerText = '';
 	}
 
-	document.getElementById('needed to die').innerText = neededToDie
-		+ ' votes needed to die.';
+	document.getElementById('needed to die number').innerText = neededToDie;
+	document.getElementById('needed to die text').innerText = ' votes to die.';
 	document.getElementById('countdown').innerText = '';
 	Reveal.down();
 }
 
-function countdown(duration) {
+function voteCountdown(duration) {
 	const startTime = Date.now();
 	const targetTime = startTime + (duration * 1000);
 	let interval = setInterval(function() {
 		let elapsedTime = targetTime - Date.now();
 		if (elapsedTime > 0) {
 			document.getElementById('countdown').innerText = 'Vote in ' + (elapsedTime
-				/ 1000).toFixed(
-				0);
+				/ 1000).toFixed(0);
 		} else {
 			clearInterval(interval);
 			document.getElementById('countdown').innerText = 'Vote!';
@@ -330,12 +358,34 @@ function countdown(duration) {
 	}, 1000);
 }
 
-function voteResult(nVotes) {
+function dayCountdown(duration){
+
+	const now = Date.now();
+	const targetTime = now + (duration * 1000 * 60);
+
+	let x = setInterval(function() {
+		let elapsedTime = targetTime - Date.now();
+		if(elapsedTime > 0){
+			let minutes = ((elapsedTime % (1000 * 60 * 60)) / (1000 * 60)).toFixed(0);
+			let seconds = ((elapsedTime % (1000 * 60)) / 1000).toFixed(0);
+
+			document.getElementById("day countdown").innerText = minutes + ":" + seconds;
+		} else {
+			clearInterval(x);
+			document.getElementById("day countdown").innerText = "Return to TownSquare!";
+		}
+	}, 1000);
+}
+
+function voteResult(result) {
+	let nVotes = result.numberOfVotes;
+	let nominee = result.nominee;
+
 	if (nVotes === currentHighestVote) {
 		aboutToDie = 'Nobody';
 		currentHighestVote = nVotes;
 	} else if (nVotes >= neededToDie) {
-		aboutToDie = document.getElementById('nominee').innerText;
+		aboutToDie = nominee;
 		currentHighestVote = nVotes;
 	}
 

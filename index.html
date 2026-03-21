@@ -19,48 +19,46 @@
 </head>
 <body>
 <div class="reveal">
+	<div id="role distribution" style="margin: 20px 20px">
+		<h2>Round <span id="round number">1</span></h2>
+		<ul style="list-style-type: none">
+			<li id="Townsfolk">Townsfolk: ?</li>
+			<li id="Outsiders">Outsiders: ?</li>
+			<li id="Minions">Minions: ?</li>
+			<li id="Demons">Demons: 1</li>
+		</ul>
+	</div>
+	<div class="townsquare" id="townsquare" style="position: relative; width: 400px; height: 400px; margin: 50px auto;">
+	</div>
+
 	<div class="slides">
 		<section>
-			Welcome Screen
+			<h2>Blood on the Clocktower</h2>
 		</section>
 		<section>
-			<h2>Night <span id="night number">1</span></h2>
+			<h2>Night</h2>
 		</section>
 		<section>
-			<h2>Dawn <span id="dawn number">1</span></h2>
-			<span id="died at night">The storyteller</span> is dead!
-		</section>
-		<section>
-			<h2>Day <span id="day number">1</span></h2>
-			<div id="role distribution">
-				<!-- <h5>Role Distribution</h5>
-				<ul>
-					<li id="Townsfolk">Townsfolk: ?</li>
-					<li id="Outsiders">Outsiders: ?</li>
-					<li id="Minions">Minions: ?</li>
-					<li id="Demons">Demons: 1</li>
-				</ul> -->
-			</div>
-			<div class="townsquare" id="townsquare" style="position: relative; width: 400px; height: 400px; margin: 50px auto;">
-			</div>
+			<h2>Day</h2>
+			<h2 id="day countdown"></h2>
 		</section>
 		<section>
 			<section>
-				<h2>Evening <span id="evening number">1</span></h2>
-				<span id="abouttodie">Nobody</span> is about to die!
+				<h2>Nominations are open!</h2>
+				<h3 style="display:inline"><span id="abouttodie">Nobody</span></h3> is about to die!
 			</section>
 			<section>
-				<h2>Nomination!</h2>
-				<span id="nominator">A</span> nominates <span id="nominee">B</span>!
 				<br>
-				<span id="needed to tie"></span> <span id="needed to die"></span>
+				<h3><span id="nominator">A</span> nominates <span id="nominee">B</span>!</h3>
+				<h2 style="display:inline"><span id="needed to tie number"></span></h2><h6 style="display:inline"><span id="needed to tie text"></span></h6>
+				<h2 style="display:inline"><span id="needed to die number">?</span></h2><h6 style="display:inline"><span id="needed to die text"> votes to die.</span></h6>
 				<br>
-				<span id="countdown"></span>
+				<h1><span id="countdown"></span></h1>
 			</section>
 		</section>
 		<section>
-			<h2>Dusk <span id="dusk number">1</span></h2>
-			<span id="executee">A</span> is executed!
+			<h2>Dusk</h2>
+			<h3 style="display:inline"><span id="executee">A</span></h3> is executed!
 		</section>
 	</div>
 </div>
